@@ -27,13 +27,18 @@ class ActionArgs(NamedTuple):
 
 def generate_words_for_current_package(alphabet: str, number_of_start_word:int, word_length: int, start_word_as_digits: list[int], word: str, package_number: int) -> int:
     logger.warning(f'{package_number=}, {number_of_start_word=}, {word_length=}, {start_word_as_digits=}, {word=}')
-    for i in range(qtty_of_items_in_package-1):
+    list_of_package_words = []
+    for i in range(qtty_of_items_in_package):
         word_as_digits = list(convert_decimal_number_to_custom_base(number=number_of_start_word, base=alphabet_length))
         word = ''.join([alphabet[character_index] for character_index in word_as_digits])
         logger.info(f'{word}')
-        # number_of_start_word+=1
+        number_of_start_word+=1
+        if len(word) <= 5:
+            list_of_package_words.append(word)
+        else:
+            break
 
-    return number_of_start_word
+    return list_of_package_words
 
 
 def __wrapper(args: ActionArgs) -> int:
