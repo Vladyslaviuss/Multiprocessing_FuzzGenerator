@@ -23,7 +23,7 @@ class ActionArgs(NamedTuple):
     word_length: int
 
 def make_actions_partial(alphabet: str, number_of_start_word:int, word_length: int) -> int:
-    logger.info(f'{alphabet=}, {number_of_start_word=}')
+    logger.warning(f'{alphabet=}, {number_of_start_word=}')
 
     start_word = [alphabet[0] for _ in range(word_length)]
 
@@ -31,7 +31,7 @@ def make_actions_partial(alphabet: str, number_of_start_word:int, word_length: i
 
 
 def make_action__wrapper(args: ActionArgs) -> int:
-    logger.info(f'{args=}')
+    logger.debug(f'{args=}')
     return make_actions_partial(**args._asdict())
 
 
@@ -68,7 +68,7 @@ def main_2():
     items_in_package_amount = 10
     packages_amount = ceil(total_number_of_words / items_in_package_amount)
 
-    logger.info(f'{alphabet=}, {word_length=}, {total_number_of_words=}')
+    logger.error(f'{alphabet=}, {word_length=}, {total_number_of_words=}')
 
     packages = [
         ActionArgs(
