@@ -2,8 +2,20 @@ import concurrent.futures
 import logging
 import random
 from typing import NamedTuple, Final, Iterator
-from init_logging import init_logging
+from custom_logger import CustomFormatter
 from math import ceil, floor
+
+
+# Create logger
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
+# Create console handler with a higher log level
+ch = logging.StreamHandler()
+ch.setLevel(logging.DEBUG)
+ch.setFormatter(CustomFormatter())
+logger.addHandler(ch)
+
 
 class ActionArgs(NamedTuple):
     alphabet: str
@@ -11,7 +23,6 @@ class ActionArgs(NamedTuple):
     word_length: int
 
 def make_actions_partial(alphabet: str, number_of_start_word:int, word_length: int) -> int:
-    logger = logging.getLogger(__name__)
     logger.info(f'{alphabet=}, {number_of_start_word=}')
 
     start_word = [alphabet[0] for _ in range(word_length)]
@@ -20,7 +31,6 @@ def make_actions_partial(alphabet: str, number_of_start_word:int, word_length: i
 
 
 def make_action__wrapper(args: ActionArgs) -> int:
-    logger = logging.getLogger(__name__)
     logger.info(f'{args=}')
     return make_actions_partial(**args._asdict())
 
@@ -58,7 +68,6 @@ def main_2():
     items_in_package_amount = 10
     packages_amount = ceil(total_number_of_words / items_in_package_amount)
 
-    logger = logging.getLogger(__name__)
     logger.info(f'{alphabet=}, {word_length=}, {total_number_of_words=}')
 
     packages = [
@@ -81,45 +90,8 @@ def main_2():
 
 
 if __name__ == "__main__":
-    init_logging()
-    # main()
+    CustomFormatter()
     main_2()
 
 
 
-
-
-
-
-
-
-
-
-# def main():
-#     alphabet = 'abc'
-#     word_length = 5
-#
-#     total_number_of_words = len(alphabet) ** word_length
-#
-#     items_in_package_amount = 10
-#     packages_amount = ceil(total_number_of_words / items_in_package_amount)
-#
-#     logger = logging.getLogger(__name__)
-#     logger.info(f'{alphabet=}, {word_length=}, {total_number_of_words=}')
-#
-#     packages = [
-#                 ActionArgs(
-#                     alphabet=alphabet,
-#                     number_of_start_word=items_in_package_amount*package_number,
-#                 )
-#                 for package_number in range(packages_amount)
-#             ]
-#     with concurrent.futures.ThreadPoolExecutor() as executor:
-#         results = executor.map(
-#             make_action__wrapper,
-#             packages,
-#         )
-#
-#         print(list(results))
-#
-#     ...
