@@ -48,11 +48,15 @@ def main_2():
     alphabet = 'abc'
     alphabet_length = len(alphabet)
     word_length = 5
-
-    min_character_index: Final[int] = 0
-    max_character_index: Final[int] = alphabet_length - 1
-
     total_number_of_words: Final[int] = len(alphabet) ** word_length
+    logger.error(f'{alphabet=}, {word_length=}, {total_number_of_words=}')
+    items_in_package_amount = 10
+    packages_amount = ceil(total_number_of_words / items_in_package_amount)
+
+    # min_character_index: Final[int] = 0
+    # max_character_index: Final[int] = alphabet_length - 1
+
+
     number_of_start_word = floor(total_number_of_words / 2)
 
     number_in_decimal_system = number_of_start_word
@@ -64,11 +68,6 @@ def main_2():
     # start_word_as_digits = [random.randint(min_character_index, max_character_index) for _ in range(word_length)]
 
     word = ''.join([alphabet[character_index] for character_index in start_word_as_digits])
-
-    items_in_package_amount = 10
-    packages_amount = ceil(total_number_of_words / items_in_package_amount)
-
-    logger.error(f'{alphabet=}, {word_length=}, {total_number_of_words=}')
 
     packages = [
         ActionArgs(
