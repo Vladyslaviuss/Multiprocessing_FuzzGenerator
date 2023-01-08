@@ -21,11 +21,12 @@ class ActionArgs(NamedTuple):
     alphabet: str
     number_of_start_word: int
     word_length: int
+    start_word_as_digits: list[int]
+    word: str
 
-def make_actions_partial(alphabet: str, number_of_start_word:int, word_length: int) -> int:
-    logger.warning(f'{alphabet=}, {number_of_start_word=}')
+def make_actions_partial(alphabet: str, number_of_start_word:int, word_length: int, start_word_as_digits: list[int], word: str) -> int:
+    logger.warning(f'{alphabet=}, {number_of_start_word=}, {word_length=}, {start_word_as_digits=}, {word=}')
 
-    start_word = [alphabet[0] for _ in range(word_length)]
 
     return number_of_start_word
 
@@ -50,12 +51,12 @@ def main_2():
     word_length = 5
     total_number_of_words: Final[int] = len(alphabet) ** word_length
     logger.error(f'{alphabet=}, {word_length=}, {total_number_of_words=}')
-    items_in_package_amount = 10
-    packages_amount = ceil(total_number_of_words / items_in_package_amount)
+    qtty_of_items_in_package = 10
+    qtty_of_packages = ceil(total_number_of_words / qtty_of_items_in_package)
 
     # min_character_index: Final[int] = 0
     # max_character_index: Final[int] = alphabet_length - 1
-
+    # start_word_as_digits = [random.randint(min_character_index, max_character_index) for _ in range(word_length)]
 
     number_of_start_word = floor(total_number_of_words / 2)
 
@@ -65,17 +66,17 @@ def main_2():
 
     start_word_as_digits = number_in_alphabet_length_system_as_list
 
-    # start_word_as_digits = [random.randint(min_character_index, max_character_index) for _ in range(word_length)]
-
     word = ''.join([alphabet[character_index] for character_index in start_word_as_digits])
 
     packages = [
         ActionArgs(
             alphabet=alphabet,
-            number_of_start_word=items_in_package_amount * package_number,
-            word_length=word_length
+            number_of_start_word=qtty_of_items_in_package * package_number,
+            word_length=word_length,
+            start_word_as_digits=start_word_as_digits,
+            word=word
         )
-        for package_number in range(packages_amount)
+        for package_number in range(qtty_of_packages)
     ]
     with concurrent.futures.ThreadPoolExecutor() as executor:
         results = executor.map(
