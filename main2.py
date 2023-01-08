@@ -4,6 +4,7 @@ import random
 from typing import NamedTuple, Final, Iterator
 from custom_logger import CustomFormatter
 from math import ceil, floor
+import time
 
 
 # Create logger
@@ -87,8 +88,10 @@ if __name__ == "__main__":
     qtty_of_items_in_package = 10
     qtty_of_packages = ceil(total_number_of_words / qtty_of_items_in_package)
     CustomFormatter()
+    start = time.perf_counter()
     main_2()
-
+    elapsed = time.perf_counter() - start
+    logger.error(f"Program completed in {elapsed:0.5f} seconds.")
 
 
 
