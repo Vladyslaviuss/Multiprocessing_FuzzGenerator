@@ -23,17 +23,22 @@ class ActionArgs(NamedTuple):
     word_length: int
     start_word_as_digits: list[int]
     word: str
+    package_number: int
 
-def make_actions_partial(alphabet: str, number_of_start_word:int, word_length: int, start_word_as_digits: list[int], word: str) -> int:
-    logger.warning(f'{alphabet=}, {number_of_start_word=}, {word_length=}, {start_word_as_digits=}, {word=}')
-
+def generate_words_for_current_package(alphabet: str, number_of_start_word:int, word_length: int, start_word_as_digits: list[int], word: str, package_number: int) -> int:
+    logger.warning(f'{package_number=}, {number_of_start_word=}, {word_length=}, {start_word_as_digits=}, {word=}')
+    for i in range(qtty_of_items_in_package-1):
+        word_as_digits = list(convert_decimal_number_to_custom_base(number=number_of_start_word, base=alphabet_length))
+        word = ''.join([alphabet[character_index] for character_index in word_as_digits])
+        logger.info(f'{word}')
+        # number_of_start_word+=1
 
     return number_of_start_word
 
 
-def make_action__wrapper(args: ActionArgs) -> int:
+def __wrapper(args: ActionArgs) -> int:
     logger.debug(f'{args=}')
-    return make_actions_partial(**args._asdict())
+    return generate_words_for_current_package(**args._asdict())
 
 
 def convert_decimal_number_to_custom_base(number: int, base: int) -> Iterator[int]:
@@ -46,41 +51,20 @@ def convert_decimal_number_to_custom_base(number: int, base: int) -> Iterator[in
         number_to_convert = floor_division
 
 def main_2():
-    alphabet = 'abc'
-    alphabet_length = len(alphabet)
-    word_length = 5
-    total_number_of_words: Final[int] = len(alphabet) ** word_length
-    logger.error(f'{alphabet=}, {word_length=}, {total_number_of_words=}')
-    qtty_of_items_in_package = 10
-    qtty_of_packages = ceil(total_number_of_words / qtty_of_items_in_package)
-
-    # min_character_index: Final[int] = 0
-    # max_character_index: Final[int] = alphabet_length - 1
-    # start_word_as_digits = [random.randint(min_character_index, max_character_index) for _ in range(word_length)]
-
-    number_of_start_word = floor(total_number_of_words / 2)
-
-    number_in_decimal_system = number_of_start_word
-
-    number_in_alphabet_length_system_as_list = list(convert_decimal_number_to_custom_base(number=number_in_decimal_system, base=alphabet_length))
-
-    start_word_as_digits = number_in_alphabet_length_system_as_list
-
-    word = ''.join([alphabet[character_index] for character_index in start_word_as_digits])
-
     packages = [
         ActionArgs(
             alphabet=alphabet,
             number_of_start_word=qtty_of_items_in_package * package_number,
             word_length=word_length,
-            start_word_as_digits=start_word_as_digits,
-            word=word
+            start_word_as_digits=list(convert_decimal_number_to_custom_base(number=qtty_of_items_in_package * package_number, base=alphabet_length)),
+            word=''.join([alphabet[character_index] for character_index in list(convert_decimal_number_to_custom_base(number=qtty_of_items_in_package * package_number, base=alphabet_length))]),
+            package_number=package_number
         )
         for package_number in range(qtty_of_packages)
     ]
     with concurrent.futures.ThreadPoolExecutor() as executor:
         results = executor.map(
-            make_action__wrapper,
+            __wrapper,
             packages,
         )
 
@@ -90,8 +74,28 @@ def main_2():
 
 
 if __name__ == "__main__":
+    alphabet = 'abc'
+    alphabet_length = len(alphabet)
+    word_length = 5
+    total_number_of_words: Final[int] = len(alphabet) ** word_length
+    logger.error(f'{alphabet=}, {word_length=}, {total_number_of_words=}')
+    qtty_of_items_in_package = 10
+    qtty_of_packages = ceil(total_number_of_words / qtty_of_items_in_package)
     CustomFormatter()
     main_2()
 
 
 
+
+
+    # min_character_index: Final[int] = 0
+    # max_character_index: Final[int] = alphabet_length - 1
+    # start_word_as_digits = [random.randint(min_character_index, max_character_index) for _ in range(word_length)]
+
+
+
+    # number_of_start_word = floor(total_number_of_words / 2)
+    # number_in_decimal_system = number_of_start_word
+    # number_in_alphabet_length_system_as_list = list(convert_decimal_number_to_custom_base(number=number_in_decimal_system, base=alphabet_length))
+    # start_word_as_digits = number_in_alphabet_length_system_as_list
+    # word = ''.join([alphabet[character_index] for character_index in start_word_as_digits])
