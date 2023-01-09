@@ -34,9 +34,8 @@ def generate_words_for_current_package(alphabet: str, number_of_start_word:int, 
         word = ''.join([alphabet[character_index] for character_index in word_as_digits])
         logger.info(f'{word}')
         number_of_start_word+=1
-        if word not in list_of_package_words:
-            list_of_package_words.append(word)
-        else:
+        list_of_package_words.append(word)
+        if word == alphabet[-1]*word_length:
             break
 
     return list_of_package_words
@@ -86,13 +85,14 @@ def main_2():
         )
         for package_number in range(qtty_of_packages)
     ]
+    mylist = []
     with concurrent.futures.ThreadPoolExecutor() as executor:
         results = executor.map(
             __wrapper,
             packages,
         )
-
-        print(list(results))
+        mylist.extend(results)
+        print(mylist)
 
     print()
 
