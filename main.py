@@ -1,5 +1,6 @@
 import concurrent.futures
 import logging
+import multiprocessing
 import pathlib
 import string
 from typing import NamedTuple, Final, Iterator
@@ -23,6 +24,9 @@ here = pathlib.Path(__file__).parent  # get current directory
 outpath = here.joinpath("output")  # create "output" subdirectory
 outfile = outpath.joinpath("outfile.txt")  # create "outfile.txt" file in "output" subdirectory
 
+CPUs = multiprocessing.cpu_count()
+
+
 
 class ActionArgs(NamedTuple):
     alphabet: str
@@ -37,7 +41,7 @@ def generate_words_for_current_package(alphabet: str, number_of_start_word:int, 
     for _ in range(qtty_of_items_in_package):
         word_as_digits = list(convert_decimal_number_to_custom_base(number=number_of_start_word, base=alphabet_length, word_length=word_length))
         word = ''.join([alphabet[character_index] for character_index in word_as_digits])
-        logger.info(f'{word}')
+        # logger.info(f'{word}')
         number_of_start_word+=1
         list_of_package_words.append(word)
         if word == alphabet[-1]*word_length:
@@ -69,7 +73,8 @@ def convert_decimal_number_to_custom_base(number: int, base: int, word_length: i
 
 def write_to_file(list_of_package_words: list, file):
     with open(f"{outpath}/package {file}.txt", "w") as f:
-        f.write(str(list_of_package_words))
+        for word in list_of_package_words:
+            f.write(f'{word}\n')
 
 
 def main():
@@ -84,30 +89,28 @@ def main():
         )
         for package_number in range(qtty_of_packages)
     ]
-    mylist = []
-    with concurrent.futures.ThreadPoolExecutor() as executor:
+    with concurrent.futures.ProcessPoolExecutor(CPUs) as executor:
         results = executor.map(
             __wrapper,
             packages,
         )
-        mylist.extend(results)
-    print(mylist)
 
-    print()
 
 
 if __name__ == "__main__":
-    alphabet = 'abc'
+    alphabet = string.ascii_lowercase + string.digits
     alphabet_length = len(alphabet)
     word_length = 5
     total_number_of_words: Final[int] = len(alphabet) ** word_length
-    logger.error(f'{alphabet=}, {word_length=}, {total_number_of_words=}')
-    qtty_of_items_in_package = 100
+    logger.warning(f'{alphabet=}, {word_length=}, {total_number_of_words=}')
+    qtty_of_items_in_package = 1000000
     qtty_of_packages = ceil(total_number_of_words / qtty_of_items_in_package)
     CustomFormatter()
     start = time.perf_counter()
     main()
     elapsed = time.perf_counter() - start
-    logger.error(f"Program completed in {elapsed:0.5f} seconds.")
+    logger.warning(f"Program completed in {elapsed:0.5f} seconds.")
+    logger.warning(f"Total generated packages: {qtty_of_packages}")
+    logger.info(f"All data written to files in f'{outpath}")
 
 
