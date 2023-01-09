@@ -99,10 +99,10 @@ def main():
 if __name__ == "__main__":
     alphabet = 'abc'
     alphabet_length = len(alphabet)
-    word_length = 4
+    word_length = 5
     total_number_of_words: Final[int] = len(alphabet) ** word_length
     logger.error(f'{alphabet=}, {word_length=}, {total_number_of_words=}')
-    qtty_of_items_in_package = 10
+    qtty_of_items_in_package = 100
     qtty_of_packages = ceil(total_number_of_words / qtty_of_items_in_package)
     CustomFormatter()
     start = time.perf_counter()
