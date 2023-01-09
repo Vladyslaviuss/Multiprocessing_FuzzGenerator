@@ -1,5 +1,6 @@
 import concurrent.futures
 import logging
+import pathlib
 import string
 from typing import NamedTuple, Final, Iterator
 from custom_logger import CustomFormatter
@@ -17,6 +18,11 @@ ch.setLevel(logging.DEBUG)
 ch.setFormatter(CustomFormatter())
 logger.addHandler(ch)
 
+# Create paths for writing into a file
+here = pathlib.Path(__file__).parent  # get current directory
+outpath = here.joinpath("output")  # create "output" subdirectory
+outfile = outpath.joinpath("outfile.txt")  # create "outfile.txt" file in "output" subdirectory
+
 
 class ActionArgs(NamedTuple):
     alphabet: str
@@ -26,10 +32,9 @@ class ActionArgs(NamedTuple):
     word: str
     package_number: int
 
-def generate_words_for_current_package(alphabet: str, number_of_start_word:int, word_length: int, start_word_as_digits: list[int], word: str, package_number: int) -> int:
-    # logger.warning(f'{package_number=}, {number_of_start_word=}, {word_length=}, {start_word_as_digits=}, {word=}')
+def generate_words_for_current_package(alphabet: str, number_of_start_word:int, word_length: int, start_word_as_digits: list[int], word: str, package_number: int) -> list[str]:
     list_of_package_words = []
-    for i in range(qtty_of_items_in_package):
+    for _ in range(qtty_of_items_in_package):
         word_as_digits = list(convert_decimal_number_to_custom_base(number=number_of_start_word, base=alphabet_length, word_length=word_length))
         word = ''.join([alphabet[character_index] for character_index in word_as_digits])
         logger.info(f'{word}')
@@ -37,14 +42,13 @@ def generate_words_for_current_package(alphabet: str, number_of_start_word:int, 
         list_of_package_words.append(word)
         if word == alphabet[-1]*word_length:
             break
-
+    write_to_file(list_of_package_words=list_of_package_words, file=package_number)
     return list_of_package_words
 
 
-def __wrapper(args: ActionArgs) -> int:
+def __wrapper(args: ActionArgs) -> list[str]:
     logger.debug(f'{args=}')
     return generate_words_for_current_package(**args._asdict())
-
 
 
 def convert_decimal_number_to_custom_base(number: int, base: int, word_length: int) -> Iterator[int]:
@@ -61,6 +65,12 @@ def convert_decimal_number_to_custom_base(number: int, base: int, word_length: i
         counter -= 1
 
     return list_of_numbers_to_convert
+
+
+def write_to_file(list_of_package_words: list, file):
+    with open(f"{outpath}/package {file}.txt", "w") as f:
+        f.write(str(list_of_package_words))
+
 
 def main():
     packages = [
@@ -81,7 +91,7 @@ def main():
             packages,
         )
         mylist.extend(results)
-        print(mylist)
+    print(mylist)
 
     print()
 
