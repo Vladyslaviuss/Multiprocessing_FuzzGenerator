@@ -12,8 +12,10 @@ class CustomFormatter(logging.Formatter):
     reset = "\x1b[0m"
 
     # log message format
-    format = "%(asctime)s.%(msecs)03d - [PROCESS %(process)d %(processName)s]" \
-             " - [THREAD %(thread)d %(threadName)s] - %(name)s - %(levelname)s - %(message)s"
+    format = (
+        "%(asctime)s.%(msecs)03d - [PROCESS %(process)d %(processName)s]"
+        " - [THREAD %(thread)d %(threadName)s] - %(name)s - %(levelname)s - %(message)s"
+    )
 
     # mapping of log levels to log message formats
     FORMATS = {
