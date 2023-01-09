@@ -1,125 +1,103 @@
 import concurrent.futures
 import logging
-import random
+import string
 from typing import NamedTuple, Final, Iterator
-from init_logging import init_logging
+from custom_logger import CustomFormatter
 from math import ceil, floor
+import time
+
+
+# Create logger
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
+# Create console handler with a higher log level
+ch = logging.StreamHandler()
+ch.setLevel(logging.DEBUG)
+ch.setFormatter(CustomFormatter())
+logger.addHandler(ch)
+
 
 class ActionArgs(NamedTuple):
     alphabet: str
     number_of_start_word: int
     word_length: int
+    start_word_as_digits: list[int]
+    word: str
+    package_number: int
 
-def make_actions_partial(alphabet: str, number_of_start_word:int, word_length: int) -> int:
-    logger = logging.getLogger(__name__)
-    logger.info(f'{alphabet=}, {number_of_start_word=}')
+def generate_words_for_current_package(alphabet: str, number_of_start_word:int, word_length: int, start_word_as_digits: list[int], word: str, package_number: int) -> int:
+    # logger.warning(f'{package_number=}, {number_of_start_word=}, {word_length=}, {start_word_as_digits=}, {word=}')
+    list_of_package_words = []
+    for i in range(qtty_of_items_in_package):
+        word_as_digits = list(convert_decimal_number_to_custom_base(number=number_of_start_word, base=alphabet_length, word_length=word_length))
+        word = ''.join([alphabet[character_index] for character_index in word_as_digits])
+        logger.info(f'{word}')
+        number_of_start_word+=1
+        list_of_package_words.append(word)
+        if word == alphabet[-1]*word_length:
+            break
 
-    start_word = [alphabet[0] for _ in range(word_length)]
-
-    return number_of_start_word
+    return list_of_package_words
 
 
-def make_action__wrapper(args: ActionArgs) -> int:
-    logger = logging.getLogger(__name__)
-    logger.info(f'{args=}')
-    return make_actions_partial(**args._asdict())
+def __wrapper(args: ActionArgs) -> int:
+    logger.debug(f'{args=}')
+    return generate_words_for_current_package(**args._asdict())
 
 
-def convert_decimal_number_to_custom_base(number: int, base: int) -> Iterator[int]:
+
+def convert_decimal_number_to_custom_base(number: int, base: int, word_length: int) -> Iterator[int]:
     """Convert decimal integer to list of numbers for custom base by iteration. From lowest to bigger."""
+
+    list_of_numbers_to_convert = [0 for _ in range(word_length)]
+    counter = word_length - 1
     number_to_convert = number
+
     while number_to_convert:
         floor_division, remainder = divmod(number_to_convert, base)
-        yield remainder
-
+        list_of_numbers_to_convert[counter] = remainder
         number_to_convert = floor_division
+        counter -= 1
 
-def main_2():
-    alphabet = 'abc'
-    alphabet_length = len(alphabet)
-    word_length = 5
+    return list_of_numbers_to_convert
 
-    min_character_index: Final[int] = 0
-    max_character_index: Final[int] = alphabet_length - 1
-
-    total_number_of_words: Final[int] = len(alphabet) ** word_length
-    number_of_start_word = floor(total_number_of_words / 2)
-
-    number_in_decimal_system = number_of_start_word
-
-    number_in_alphabet_length_system_as_list = list(convert_decimal_number_to_custom_base(number=number_in_decimal_system, base=alphabet_length))
-
-    start_word_as_digits = number_in_alphabet_length_system_as_list
-
-    # start_word_as_digits = [random.randint(min_character_index, max_character_index) for _ in range(word_length)]
-
-    word = ''.join([alphabet[character_index] for character_index in start_word_as_digits])
-
-    items_in_package_amount = 10
-    packages_amount = ceil(total_number_of_words / items_in_package_amount)
-
-    logger = logging.getLogger(__name__)
-    logger.info(f'{alphabet=}, {word_length=}, {total_number_of_words=}')
-
+def main():
     packages = [
         ActionArgs(
             alphabet=alphabet,
-            number_of_start_word=items_in_package_amount * package_number,
-            word_length=word_length
+            number_of_start_word=qtty_of_items_in_package * package_number,
+            word_length=word_length,
+            start_word_as_digits=list(convert_decimal_number_to_custom_base(number=qtty_of_items_in_package * package_number, base=alphabet_length, word_length=word_length)),
+            word=''.join([alphabet[character_index] for character_index in list(convert_decimal_number_to_custom_base(number=qtty_of_items_in_package * package_number, base=alphabet_length, word_length=word_length))]),
+            package_number=package_number
         )
-        for package_number in range(packages_amount)
+        for package_number in range(qtty_of_packages)
     ]
+    mylist = []
     with concurrent.futures.ThreadPoolExecutor() as executor:
         results = executor.map(
-            make_action__wrapper,
+            __wrapper,
             packages,
         )
-
-        print(list(results))
+        mylist.extend(results)
+        print(mylist)
 
     print()
 
 
 if __name__ == "__main__":
-    init_logging()
-    # main()
-    main_2()
+    alphabet = 'abc'
+    alphabet_length = len(alphabet)
+    word_length = 4
+    total_number_of_words: Final[int] = len(alphabet) ** word_length
+    logger.error(f'{alphabet=}, {word_length=}, {total_number_of_words=}')
+    qtty_of_items_in_package = 10
+    qtty_of_packages = ceil(total_number_of_words / qtty_of_items_in_package)
+    CustomFormatter()
+    start = time.perf_counter()
+    main()
+    elapsed = time.perf_counter() - start
+    logger.error(f"Program completed in {elapsed:0.5f} seconds.")
 
 
-
-
-
-
-
-
-
-
-
-# def main():
-#     alphabet = 'abc'
-#     word_length = 5
-#
-#     total_number_of_words = len(alphabet) ** word_length
-#
-#     items_in_package_amount = 10
-#     packages_amount = ceil(total_number_of_words / items_in_package_amount)
-#
-#     logger = logging.getLogger(__name__)
-#     logger.info(f'{alphabet=}, {word_length=}, {total_number_of_words=}')
-#
-#     packages = [
-#                 ActionArgs(
-#                     alphabet=alphabet,
-#                     number_of_start_word=items_in_package_amount*package_number,
-#                 )
-#                 for package_number in range(packages_amount)
-#             ]
-#     with concurrent.futures.ThreadPoolExecutor() as executor:
-#         results = executor.map(
-#             make_action__wrapper,
-#             packages,
-#         )
-#
-#         print(list(results))
-#
-#     ...
