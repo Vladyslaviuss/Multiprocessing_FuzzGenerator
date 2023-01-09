@@ -1,6 +1,5 @@
 import concurrent.futures
 import logging
-import random
 from typing import NamedTuple, Final, Iterator
 from custom_logger import CustomFormatter
 from math import ceil, floor
