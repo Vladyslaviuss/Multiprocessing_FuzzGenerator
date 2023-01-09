@@ -22,8 +22,9 @@ logger.addHandler(ch)
 # Create paths for writing into a file
 here = pathlib.Path(__file__).parent  # get current directory
 outpath = here.joinpath("output")  # create "output" subdirectory
-outfile = outpath.joinpath("outfile.txt")  # create "outfile.txt" file in "output" subdirectory
 
+
+# Quantity of logical cores on machine
 CPUs = multiprocessing.cpu_count()
 
 
